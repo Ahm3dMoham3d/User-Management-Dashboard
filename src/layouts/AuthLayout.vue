@@ -10,7 +10,7 @@ import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
     >
       <div
         id="layer"
-        class="absolute h-full w-full bg-gradient-to-t from-blue-700 flex p-8 items-end justify-center text-white rounded-b-lg"
+        class="absolute h-full w-full bg-gradient-to-t from-primary flex p-8 items-end justify-center text-primary-foreground rounded-b-lg"
       >
         <div class="text-center">
           <h4 class="font-bold text-4xl mb-2">

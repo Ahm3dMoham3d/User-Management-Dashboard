@@ -10,8 +10,9 @@ const routes = [
     children: [
       {
         path: "",
-        name: "LoginPage",
+        name: "LoginView",
         component: AuthView,
+        meta: { title: "Login" },
       },
     ],
   },
@@ -20,6 +21,10 @@ const routes = [
 const router = createRouter({
   history: createMemoryHistory(),
   routes,
+});
+
+router.beforeEach((to) => {
+  document.title = `AdminX - ${to.meta.title}`;
 });
 
 export { router };
