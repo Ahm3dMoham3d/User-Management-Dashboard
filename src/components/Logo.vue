@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Icon } from "@iconify/vue";
+import { Users } from "lucide-vue-next";
 </script>
 
 <template>
@@ -7,7 +7,7 @@ import { Icon } from "@iconify/vue";
     <div
       class="w-12 h-12 bg-primary rounded-full flex items-center justify-center"
     >
-      <Icon icon="mdi:users" class="text-primary-foreground h-8 w-8" />
+      <Users class="text-primary-foreground h-7 w-7" />
     </div>
 
     <div class="font-bold text-lg">

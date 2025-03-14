@@ -24,9 +24,9 @@ import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
         </div>
       </div>
     </div>
-    <div class="lg:col-span-5">
-      <div class="px-2">
-        <div class="flex items-center gap-2 justify-between">
+    <div class="lg:col-span-5 flex flex-col items-center justify-center">
+      <div class="px-2 max-w-[550px] w-full">
+        <div class="flex items-center gap-2 justify-between mb-12">
           <Logo />
           <div class="flex items-center gap-2">
             <ThemeSwitcher />
@@ -35,6 +35,11 @@ import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
 
         <div>
           <RouterView />
+        </div>
+
+        <div class="text-center text-sm text-muted-foreground mt-8">
+          &copy; {{ new Date().getFullYear() }}
+          <span class="font-semibold">ADMINX</span>. All rights reserved.
         </div>
       </div>
     </div>
