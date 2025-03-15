@@ -1,6 +1,7 @@
 import type { ColumnDef } from "@tanstack/vue-table";
 import { h } from "vue";
 import type { User } from "@/store/usersStore";
+import DropdownAction from "./data-table-dropdown.vue";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -72,6 +73,22 @@ export const columns: ColumnDef<User>[] = [
       });
 
       return h("span", { class: "font-medium" }, formattedDate);
+    },
+  },
+
+  {
+    id: "actions",
+    enableHiding: false,
+    cell: ({ row }) => {
+      const user = row.original;
+
+      return h(
+        "div",
+        { class: "relative" },
+        h(DropdownAction, {
+          user,
+        })
+      );
     },
   },
 ];

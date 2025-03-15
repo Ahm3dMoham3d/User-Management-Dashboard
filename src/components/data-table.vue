@@ -48,7 +48,7 @@ const props = defineProps<{
   error?: string | null;
   filterKey?: string | null;
   filterPlaceholder?: string | null;
-  retryFunction?: () => void; // ✅ Add retry function prop
+  retryFunction?: () => void;
 }>();
 
 const refreshPage = () => {
@@ -151,8 +151,11 @@ const handleSearchUpdate = debounce((val: string) => {
             :key="headerGroup.id"
           >
             <TableHead
-              class="cursor-pointer hover:bg-muted"
-              @click="handleSortUpdate(header.id)"
+              class="transition-colors"
+              :class="
+                header.id !== 'actions' ? 'cursor-pointer hover:bg-muted' : ''
+              "
+              @click="header.id !== 'actions' && handleSortUpdate(header.id)"
               v-for="header in headerGroup.headers"
               :key="header.id"
             >

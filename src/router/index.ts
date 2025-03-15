@@ -7,6 +7,8 @@ const AuthView = () => import("@/views/AuthView.vue");
 const DashboardLayout = () => import("@/layouts/DashboardLayout.vue");
 const DashboardView = () => import("@/views/DashboardView.vue");
 
+const UserView = () => import("@/views/UserView.vue");
+
 const NotFoundView = () => import("@/views/NotFoundView.vue");
 
 const routes = [
@@ -34,6 +36,13 @@ const routes = [
         name: "DashboardView",
         component: DashboardView,
         meta: { title: "Dashboard" },
+      },
+
+      {
+        path: "users/:id",
+        name: "UserView",
+        component: UserView,
+        meta: { title: "User Page" },
       },
     ],
   },
