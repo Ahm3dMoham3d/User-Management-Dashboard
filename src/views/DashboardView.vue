@@ -4,8 +4,6 @@ import { columns } from "@/components/users/columns";
 import { useUsersStore } from "@/store/usersStore";
 import { computed, onMounted, watch } from "vue";
 import { useRoute } from "vue-router";
-import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-vue-next";
 
 const usersStore = useUsersStore();
 const route = useRoute();
@@ -18,7 +16,8 @@ const fetchUsers = () => {
   usersStore.getAllUsers(
     Number(route.query?.page) || 1,
     Number(route.query?.limit) || 10,
-    route.query?.search?.toString() || ""
+    route.query?.search?.toString() || "",
+    route.query?.sort?.toString() || ""
   );
 };
 onMounted(() => {

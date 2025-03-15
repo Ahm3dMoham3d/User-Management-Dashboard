@@ -38,6 +38,7 @@ import {
 
 import { debounce } from "lodash";
 import type { AcceptableValue } from "reka-ui";
+import { ArrowDownNarrowWide, ArrowUpNarrowWide } from "lucide-vue-next";
 
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[];
@@ -72,6 +73,7 @@ const limitOptions = [10, 20, 30];
 const limitRef = ref(Number(route.query.limit) || 10);
 const pageRef = ref(Number(route.query.page) || 1);
 const searchRef = ref((route.query.search as string) || "");
+const sortRef = ref((route.query.sort as string) || "");
 
 const searchModel = computed({
   get: () => searchRef.value,
@@ -80,6 +82,22 @@ const searchModel = computed({
     handleSearchUpdate(val);
   },
 });
+
+const handleSortUpdate = (id: string) => {
+  if (sortRef.value !== id && sortRef.value !== `-${id}`) {
+    sortRef.value = id;
+  } else if (sortRef.value === id) {
+    sortRef.value = `-${id}`;
+  } else {
+    sortRef.value = "";
+  }
+  router.push({
+    query: {
+      ...router.currentRoute.value.query,
+      sort: sortRef.value,
+    },
+  });
+};
 
 const handleLimitUpdate = (newVal: AcceptableValue) => {
   const limit = Number(newVal) || 10;
@@ -132,12 +150,24 @@ const handleSearchUpdate = debounce((val: string) => {
             v-for="headerGroup in table.getHeaderGroups()"
             :key="headerGroup.id"
           >
-            <TableHead v-for="header in headerGroup.headers" :key="header.id">
-              <FlexRender
-                v-if="!header.isPlaceholder"
-                :render="header.column.columnDef.header"
-                :props="header.getContext()"
-              />
+            <TableHead
+              class="cursor-pointer hover:bg-muted"
+              @click="handleSortUpdate(header.id)"
+              v-for="header in headerGroup.headers"
+              :key="header.id"
+            >
+              <div class="flex items-center gap-2">
+                <FlexRender
+                  v-if="!header.isPlaceholder"
+                  :render="header.column.columnDef.header"
+                  :props="header.getContext()"
+                />
+
+                <ArrowDownNarrowWide v-if="sortRef == `-${header.id}`" />
+                <ArrowUpNarrowWide
+                  v-else-if="sortRef == header.id && !sortRef.startsWith('-')"
+                />
+              </div>
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -202,6 +232,7 @@ const handleSearchUpdate = debounce((val: string) => {
       </Table>
 
       <div
+        v-if="!loading && !error && table.getRowModel().rows?.length"
         class="flex items-center flex-wrap gap-2 mt-4 w-full justify-between"
       >
         <div>

@@ -35,10 +35,19 @@ export const mockApi = {
         user.email.toLowerCase().includes(search.toLowerCase()) // Added email search
     );
 
+    // Determine sorting order
+    const isDescending = sort.startsWith("-");
+    const sortKey = isDescending ? sort.slice(1) : sort;
+
     // Sort users by the specified column
-    filteredUsers.sort((a, b) =>
-      a[sort as keyof typeof a] > b[sort as keyof typeof b] ? 1 : -1
-    );
+    filteredUsers.sort((a, b) => {
+      if (a[sortKey as keyof typeof a] > b[sortKey as keyof typeof b]) {
+        return isDescending ? -1 : 1;
+      } else if (a[sortKey as keyof typeof a] < b[sortKey as keyof typeof b]) {
+        return isDescending ? 1 : -1;
+      }
+      return 0;
+    });
 
     // Calculate the starting index based on the page number and limit
     const start = Number((page - 1) * limit);

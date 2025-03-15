@@ -31,11 +31,11 @@ export const useUsersStore = defineStore("users", {
   }),
 
   actions: {
-    async getAllUsers(page = 1, limit = 10, search: string) {
+    async getAllUsers(page = 1, limit = 10, search: string, sort: string) {
       this.loading = true;
       this.error = null;
       try {
-        const response = await mockApi.getUsers(page, limit, search);
+        const response = await mockApi.getUsers(page, limit, search, sort);
         this.users = response.data;
         this.total = response.total;
       } catch (e) {
