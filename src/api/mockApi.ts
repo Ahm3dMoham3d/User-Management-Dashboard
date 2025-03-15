@@ -1,15 +1,17 @@
-const users = Array.from({ length: 50 }, (_, i) => ({
+import type { User } from "@/store/usersStore";
+
+const users: User[] = Array.from({ length: 50 }, (_, i) => ({
   id: i + 1,
   name: `User ${i + 1}`,
   email: `user${i + 1}@example.com`,
-  role: i % 3 === 0 ? "admin" : i % 3 === 1 ? "editor" : "viewer",
+  role: i % 3 === 0 ? "admin" : i % 3 === 1 ? "manager" : "viewer",
   status: i % 2 === 0 ? "active" : "inactive",
   dateJoined: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
 }));
 
 const roles = [
   { id: 1, name: "admin", permissions: ["read", "write", "delete"] },
-  { id: 2, name: "editor", permissions: ["read", "write"] },
+  { id: 2, name: "manager", permissions: ["read", "write"] },
   { id: 3, name: "viewer", permissions: ["read"] },
 ];
 
@@ -19,21 +21,31 @@ const simulateLatency = () =>
 const randomFailure = () => Math.random() < 0.1;
 
 export const mockApi = {
-  async getUsers(page = 1, limit = 10, filter = "", sort = "id") {
+  async getUsers(page = 1, limit = 10, search = "", sort = "id") {
     await simulateLatency();
+    console.log("Get Users API Called");
+    console.log("Page:", page, "Limit:", limit, "Search:", search);
+
     if (randomFailure()) throw new Error("Failed to fetch users");
 
-    let filteredUsers = users.filter((user) =>
-      user.name.toLowerCase().includes(filter.toLowerCase())
+    // Filter users based on search query
+    let filteredUsers = users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(search.toLowerCase()) ||
+        user.email.toLowerCase().includes(search.toLowerCase()) // Added email search
     );
 
+    // Sort users by the specified column
     filteredUsers.sort((a, b) =>
       a[sort as keyof typeof a] > b[sort as keyof typeof b] ? 1 : -1
     );
 
-    const start = (page - 1) * limit;
+    // Calculate the starting index based on the page number and limit
+    const start = Number((page - 1) * limit);
+    const end = Number(start + Number(limit));
+
     return {
-      data: filteredUsers.slice(start, start + limit),
+      data: filteredUsers.slice(start, end),
       total: filteredUsers.length,
     };
   },
