@@ -9,11 +9,7 @@ const users: User[] = Array.from({ length: 50 }, (_, i) => ({
   dateJoined: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
 }));
 
-const roles = [
-  { id: 1, name: "admin", permissions: ["read", "write", "delete"] },
-  { id: 2, name: "manager", permissions: ["read", "write"] },
-  { id: 3, name: "viewer", permissions: ["read"] },
-];
+const roles = ["admin", "manager", "viewer"];
 
 const simulateLatency = () =>
   new Promise((resolve) => setTimeout(resolve, 300 + Math.random() * 500));
@@ -24,7 +20,6 @@ export const mockApi = {
   async getUsers(page = 1, limit = 10, search = "", sort = "id") {
     await simulateLatency();
     console.log("Get Users API Called");
-    console.log("Page:", page, "Limit:", limit, "Search:", search);
 
     if (randomFailure()) throw new Error("Failed to fetch users");
 

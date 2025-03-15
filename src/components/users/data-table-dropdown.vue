@@ -33,7 +33,7 @@ defineProps<{
       <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
       <DropdownMenuSeparator />
-      <DropdownMenuItem as-child>
+      <DropdownMenuItem v-role="['admin', 'manager', 'viewer']" as-child>
         <RouterLink :to="`/dashboard/users/${user.id}`">
           <div class="flex w-full items-center gap-1 justify-between">
             View
@@ -41,7 +41,7 @@ defineProps<{
           </div>
         </RouterLink>
       </DropdownMenuItem>
-      <DropdownMenuItem as-child>
+      <DropdownMenuItem v-role="['admin', 'manager']" as-child>
         <RouterLink :to="`/dashboard/users/edit/${user.id}`">
           <div class="flex w-full items-center gap-1 justify-between">
             Edit
@@ -50,7 +50,7 @@ defineProps<{
         </RouterLink>
       </DropdownMenuItem>
 
-      <DropdownMenuItem as-child>
+      <DropdownMenuItem v-role="['admin']" as-child>
         <RouterLink :to="`/dashboard/users/edit/${user.id}`">
           <div
             class="flex text-red-500 w-full items-center gap-1 justify-between"

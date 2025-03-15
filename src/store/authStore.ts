@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import { mockApi } from "@/api/mockApi";
 
 export interface User {
   id: number;
@@ -9,28 +10,32 @@ export interface User {
   role: string;
 }
 
-const SESSION_TIMEOUT = 30 * 60 * 1000;
-
 export const useAuthStore = defineStore("auth", () => {
   const user = ref<User | null>(
     JSON.parse(localStorage.getItem("user") || "null")
   );
   const token = ref<string>(localStorage.getItem("token") || "");
-  const lastActive = ref<number>(
-    parseInt(localStorage.getItem("lastActive") || "0")
-  );
+  const roles = ref<string[]>([]); // Store available roles
+  const isRolesFetched = ref(false);
   const router = useRouter();
-  let sessionTimer: ReturnType<typeof setTimeout> | null = null;
 
   const isAuthenticated = computed(() => !!token.value);
   const userRole = computed(() => user.value?.role || "");
 
-  function login(credentials: {
-    email: string;
-    password: string;
-  }): Promise<User> {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
+  async function fetchRoles() {
+    if (isRolesFetched.value) return; // Prevent duplicate API calls
+    try {
+      roles.value = await mockApi.getRoles();
+      isRolesFetched.value = true;
+      localStorage.setItem("roles", JSON.stringify(roles.value)); // Cache roles
+    } catch (error) {
+      console.error("Failed to fetch roles", error);
+    }
+  }
+
+  async function login(credentials: { email: string; password: string }) {
+    return new Promise(async (resolve, reject) => {
+      setTimeout(async () => {
         let mockUser: User | null = null;
         let mockToken = "mock_jwt_token";
 
@@ -69,13 +74,12 @@ export const useAuthStore = defineStore("auth", () => {
         if (mockUser) {
           user.value = mockUser;
           token.value = mockToken;
-          lastActive.value = Date.now();
 
           localStorage.setItem("user", JSON.stringify(mockUser));
           localStorage.setItem("token", mockToken);
-          localStorage.setItem("lastActive", lastActive.value.toString());
 
-          startSessionTimeout();
+          await fetchRoles(); // ✅ Fetch roles after login
+
           resolve(mockUser);
           router.push("/dashboard");
         } else {
@@ -85,56 +89,27 @@ export const useAuthStore = defineStore("auth", () => {
     });
   }
 
-  function logout(): void {
+  function logout() {
     user.value = null;
     token.value = "";
-    lastActive.value = 0;
+    roles.value = []; // Clear roles on logout
+    isRolesFetched.value = false;
+
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    localStorage.removeItem("lastActive");
-
-    if (sessionTimer) {
-      clearTimeout(sessionTimer);
-      sessionTimer = null;
-    }
+    localStorage.removeItem("roles");
 
     router.push("/");
-  }
-
-  function startSessionTimeout() {
-    if (sessionTimer) {
-      clearTimeout(sessionTimer);
-    }
-
-    sessionTimer = setTimeout(() => {
-      if (isAuthenticated.value) {
-        logout();
-        alert("Session expired. Please log in again.");
-      }
-    }, SESSION_TIMEOUT);
-  }
-
-  function updateLastActive() {
-    lastActive.value = Date.now();
-    localStorage.setItem("lastActive", lastActive.value.toString());
-    startSessionTimeout(); // Reset session timeout
-  }
-
-  document.addEventListener("mousemove", updateLastActive);
-  document.addEventListener("keydown", updateLastActive);
-
-  // Run session timeout check on store initialization
-  if (isAuthenticated.value) {
-    startSessionTimeout();
   }
 
   return {
     user,
     token,
+    roles,
     isAuthenticated,
     userRole,
+    fetchRoles,
     login,
     logout,
-    updateLastActive,
   };
 });
