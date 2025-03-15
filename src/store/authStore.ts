@@ -15,8 +15,13 @@ export const useAuthStore = defineStore("auth", () => {
     JSON.parse(localStorage.getItem("user") || "null")
   );
   const token = ref<string>(localStorage.getItem("token") || "");
-  const roles = ref<string[]>([]); // Store available roles
-  const isRolesFetched = ref(false);
+
+  // ✅ Correctly parse stored roles from localStorage
+  const roles = ref<string[]>(
+    JSON.parse(localStorage.getItem("roles") || "[]")
+  );
+  const isRolesFetched = ref(roles.value.length > 0); // Prevent re-fetching if stored
+
   const router = useRouter();
 
   const isAuthenticated = computed(() => !!token.value);
@@ -25,7 +30,8 @@ export const useAuthStore = defineStore("auth", () => {
   async function fetchRoles() {
     if (isRolesFetched.value) return; // Prevent duplicate API calls
     try {
-      roles.value = await mockApi.getRoles();
+      const fetchedRoles = await mockApi.getRoles();
+      roles.value = fetchedRoles;
       isRolesFetched.value = true;
       localStorage.setItem("roles", JSON.stringify(roles.value)); // Cache roles
     } catch (error) {
@@ -78,7 +84,7 @@ export const useAuthStore = defineStore("auth", () => {
           localStorage.setItem("user", JSON.stringify(mockUser));
           localStorage.setItem("token", mockToken);
 
-          await fetchRoles(); // ✅ Fetch roles after login
+          await fetchRoles();
 
           resolve(mockUser);
           router.push("/dashboard");

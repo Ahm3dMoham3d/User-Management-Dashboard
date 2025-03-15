@@ -1,6 +1,7 @@
 import { defineStore } from "pinia";
 import { mockApi } from "@/api/mockApi";
-
+import { useToast } from "@/components/ui/toast/use-toast";
+const { toast } = useToast();
 export interface User {
   id: number;
   name: string;
@@ -13,6 +14,7 @@ export interface User {
 interface UsersState {
   users: User[];
   loading: boolean;
+  actionPending: boolean;
   error: string | null;
   total: number;
 }
@@ -27,6 +29,7 @@ export const useUsersStore = defineStore("users", {
     users: [],
     total: 0,
     loading: false,
+    actionPending: false,
     error: null,
   }),
 
@@ -43,6 +46,26 @@ export const useUsersStore = defineStore("users", {
         console.error(e);
       } finally {
         this.loading = false;
+      }
+    },
+
+    async deleteUser(index: number) {
+      this.actionPending = true;
+
+      try {
+        await mockApi.deleteUser(index);
+        toast({
+          title: "User Delete Successfully",
+          variant: "success",
+        });
+      } catch (e) {
+        toast({
+          title: e instanceof Error ? e.message : "An error occurred",
+          variant: "destructive",
+        });
+        console.error(e);
+      } finally {
+        this.actionPending = false;
       }
     },
   },
