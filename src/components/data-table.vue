@@ -62,6 +62,7 @@ const props = defineProps<{
   retryFunction?: () => void;
   exportFunction?: () => void;
   exportPending: boolean;
+  filter: boolean;
 }>();
 
 const refreshPage = () => {
@@ -150,7 +151,7 @@ const handleSearchUpdate = debounce((val: string) => {
       <div class="relative min-w-[250px]">
         <Search
           class="absolute start-3 top-1/2 transform -translate-y-1/2"
-          size="18"
+          :size="18"
         />
         <Input
           class="ps-10 w-full"
@@ -160,43 +161,56 @@ const handleSearchUpdate = debounce((val: string) => {
         />
       </div>
 
-      <TooltipProvider v-if="exportFunction">
-        <Tooltip>
-          <TooltipTrigger>
-            <Button
-              variant="ghost"
-              :disabled="exportPending"
-              @click="exportFunction"
-            >
-              <FileSpreadsheet v-if="!exportPending" />
-              <svg
-                v-else
-                class="animate-spin h-5 w-5 text-gray-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
+      <div class="flex items-center gap-2">
+        <TooltipProvider v-if="exportFunction">
+          <Tooltip>
+            <TooltipTrigger>
+              <Button
+                variant="ghost"
+                :disabled="exportPending"
+                @click="exportFunction"
               >
-                <circle
-                  class="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  stroke-width="4"
-                ></circle>
-                <path
-                  class="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                ></path>
-              </svg>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>{{ exportPending ? "Exporting..." : "Export to CSV" }}</p>
-          </TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+                <FileSpreadsheet v-if="!exportPending" />
+                <svg
+                  v-else
+                  class="animate-spin h-5 w-5 text-gray-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    class="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    stroke-width="4"
+                  ></circle>
+                  <path
+                    class="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  ></path>
+                </svg>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{{ exportPending ? "Exporting..." : "Export to CSV" }}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider v-if="filter">
+          <Tooltip>
+            <TooltipTrigger>
+              <slot name="filter"></slot>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Filter</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
     </div>
 
     <div class="border rounded-md p-4">

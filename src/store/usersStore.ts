@@ -67,11 +67,25 @@ export const useUsersStore = defineStore("users", {
   },
 
   actions: {
-    async getAllUsers(page = 1, limit = 10, search?: string, sort?: string) {
+    async getAllUsers(
+      page = 1,
+      limit = 10,
+      search?: string,
+      sort?: string,
+      roles?: string[],
+      status?: string
+    ) {
       this.loading = true;
       this.error = null;
       try {
-        const response = await mockApi.getUsers(page, limit, search, sort);
+        const response = await mockApi.getUsers(
+          page,
+          limit,
+          search,
+          sort,
+          roles,
+          status
+        );
         this.users = response.data;
         this.total = response.total;
       } catch (e) {

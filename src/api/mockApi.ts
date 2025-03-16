@@ -5,7 +5,7 @@ const users: User[] = Array.from({ length: 50 }, (_, i) => ({
   name: `User ${i + 1}`,
   email: `user${i + 1}@example.com`,
   role: i % 3 === 0 ? "admin" : i % 3 === 1 ? "manager" : "viewer",
-  status: i % 3 === 0 ? "active" : "inactive",
+  status: i % 2 === 0 ? "active" : "inactive",
   dateJoined: new Date(Date.now() - Math.random() * 10000000000).toISOString(),
 }));
 
@@ -17,7 +17,14 @@ const simulateLatency = () =>
 const randomFailure = () => Math.random() < 0.1;
 
 export const mockApi = {
-  async getUsers(page = 1, limit = 10, search = "", sort = "id") {
+  async getUsers(
+    page = 1,
+    limit = 10,
+    search = "",
+    sort = "id",
+    roles: string[] = [],
+    status: string | null = null
+  ) {
     await simulateLatency();
     console.log("Get Users API Called");
 
@@ -29,6 +36,16 @@ export const mockApi = {
         user.name.toLowerCase().includes(search.toLowerCase()) ||
         user.email.toLowerCase().includes(search.toLowerCase()) // Added email search
     );
+
+    // Apply role filter if roles are selected
+    if (roles.length > 0) {
+      filteredUsers = filteredUsers.filter((user) => roles.includes(user.role));
+    }
+
+    // Apply status filter if selected
+    if (status) {
+      filteredUsers = filteredUsers.filter((user) => user.status === status);
+    }
 
     // Determine sorting order
     const isDescending = sort.startsWith("-");
