@@ -78,7 +78,7 @@ const handleLogin = async (event: Event) => {
       </div>
 
       <!-- Submit Button -->
-      <Button :disabled="loading" type="submit" class="mt-2">
+      <Button id="login-button" :disabled="loading" type="submit" class="mt-2">
         {{ loading ? "Logging in..." : "Login" }}
       </Button>
     </form>

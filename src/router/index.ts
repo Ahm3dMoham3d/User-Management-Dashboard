@@ -119,4 +119,4 @@ router.beforeEach(async (to, _, next) => {
 
   next();
 });
-export { router };
+export { router, routes };

@@ -32,7 +32,7 @@ onMounted(() => {
         </Avatar>
 
         <div v-if="userData">
-          <div class="text-sm">{{ userData.name }}</div>
+          <div class="text-sm avatar">{{ userData.name }}</div>
         </div>
       </div>
     </DropdownMenuTrigger>
