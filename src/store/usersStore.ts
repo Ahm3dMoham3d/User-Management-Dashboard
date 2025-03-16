@@ -1,7 +1,9 @@
 import { defineStore } from "pinia";
 import { mockApi } from "@/api/mockApi";
 import { useToast } from "@/components/ui/toast/use-toast";
+
 const { toast } = useToast();
+
 export interface User {
   id: number;
   name: string;
@@ -13,20 +15,17 @@ export interface User {
 
 interface UsersState {
   users: User[];
+  user: User | null;
   loading: boolean;
   actionPending: boolean;
   error: string | null;
   total: number;
 }
 
-interface QueryProps {
-  page?: number;
-  limit: number;
-}
-
 export const useUsersStore = defineStore("users", {
   state: (): UsersState => ({
     users: [],
+    user: null,
     total: 0,
     loading: false,
     actionPending: false,
@@ -49,13 +48,26 @@ export const useUsersStore = defineStore("users", {
       }
     },
 
+    async getUserById(id: string) {
+      this.loading = true;
+      this.error = null;
+      try {
+        const response = await mockApi.getUser(Number(id));
+        this.user = response;
+      } catch (e) {
+        this.error = e instanceof Error ? e.message : "An error occurred";
+        console.error(e);
+      } finally {
+        this.loading = false;
+      }
+    },
+
     async deleteUser(index: number) {
       this.actionPending = true;
-
       try {
         await mockApi.deleteUser(index);
         toast({
-          title: "User Delete Successfully",
+          title: "User Deleted Successfully",
           variant: "success",
         });
       } catch (e) {
@@ -67,6 +79,66 @@ export const useUsersStore = defineStore("users", {
       } finally {
         this.actionPending = false;
       }
+    },
+
+    async editUser(index: number, userObj: User) {
+      this.actionPending = true;
+      try {
+        await mockApi.updateUser(index, userObj);
+        toast({
+          title: "User Edited Successfully",
+          variant: "success",
+        });
+      } catch (e) {
+        toast({
+          title: e instanceof Error ? e.message : "An error occurred",
+          variant: "destructive",
+        });
+        console.error(e);
+      } finally {
+        this.actionPending = false;
+      }
+    },
+
+    exportUsersToCSV() {
+      if (!this.users.length) {
+        toast({
+          title: "No users to export",
+          variant: "destructive",
+        });
+        return;
+      }
+      this.actionPending = true;
+
+      const headers = ["ID", "Name", "Email", "Role", "Status", "Date Joined"];
+      const rows = this.users.map((user) => [
+        user.id,
+        user.name,
+        user.email,
+        user.role,
+        user.status,
+        user.dateJoined,
+      ]);
+
+      const csvContent =
+        "data:text/csv;charset=utf-8," +
+        [headers, ...rows].map((e) => e.join(",")).join("\n");
+
+      // Create a downloadable link
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "users.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: "CSV Exported Successfully",
+        variant: "success",
+      });
+
+      this.actionPending = false;
     },
   },
 });

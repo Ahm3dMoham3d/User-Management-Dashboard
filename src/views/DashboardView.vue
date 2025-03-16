@@ -36,6 +36,8 @@ watch(
 
 <template>
   <DataTable
+    :exportFunction="usersStore.exportUsersToCSV"
+    :exportPending="usersStore.actionPending"
     :columns="columns"
     :data="usersData"
     :loading="loadingState"

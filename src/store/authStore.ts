@@ -104,6 +104,7 @@ export const useAuthStore = defineStore("auth", () => {
     localStorage.removeItem("user");
     localStorage.removeItem("token");
     localStorage.removeItem("roles");
+    localStorage.removeItem("lastActive");
 
     router.push("/");
   }

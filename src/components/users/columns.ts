@@ -2,6 +2,8 @@ import type { ColumnDef } from "@tanstack/vue-table";
 import { h } from "vue";
 import type { User } from "@/store/usersStore";
 import DropdownAction from "./data-table-dropdown.vue";
+import { useRoleClasses } from "@/composables/useRoleClasses";
+import { useStatusClasses } from "@/composables/useStatusClasses";
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -23,17 +25,12 @@ export const columns: ColumnDef<User>[] = [
     header: () => h("div", { class: "text-start" }, "Role"),
     cell: ({ row }) => {
       const role: User["role"] = row.getValue("role");
-
-      const roleClasses: Record<User["role"], string> = {
-        admin: "bg-purple-500 text-white",
-        manager: "bg-blue-500 text-white",
-        viewer: "bg-pink-500 text-white",
-      };
+      const roleClass = useRoleClasses(role);
 
       return h(
         "span",
         {
-          class: `px-2 py-1 rounded-md font-medium ${roleClasses[role]}`,
+          class: `px-2 py-1 rounded-md font-medium ${roleClass}`,
         },
         role.toUpperCase()
       );
@@ -45,16 +42,12 @@ export const columns: ColumnDef<User>[] = [
     header: () => h("div", { class: "text-start" }, "Status"),
     cell: ({ row }) => {
       const status: User["status"] = row.getValue("status");
-
-      const statusClasses: Record<User["status"], string> = {
-        active: "bg-green-500 text-white",
-        inactive: "bg-gray-500 text-white",
-      };
+      const statusClass = useStatusClasses(status);
 
       return h(
         "span",
         {
-          class: `px-2 py-1 rounded-md font-medium ${statusClasses[status]}`,
+          class: `px-2 py-1 rounded-md font-medium ${statusClass}`,
         },
         status.charAt(0).toUpperCase() + status.slice(1)
       );

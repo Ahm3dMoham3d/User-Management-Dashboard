@@ -8,8 +8,10 @@ const DashboardLayout = () => import("@/layouts/DashboardLayout.vue");
 const DashboardView = () => import("@/views/DashboardView.vue");
 
 const UserView = () => import("@/views/UserView.vue");
+const UserEditView = () => import("@/views/UserEditView.vue");
 
 const NotFoundView = () => import("@/views/NotFoundView.vue");
+const UnauthorizedView = () => import("@/views/UnauthorizedView.vue");
 
 const routes = [
   {
@@ -35,16 +37,30 @@ const routes = [
         path: "",
         name: "DashboardView",
         component: DashboardView,
-        meta: { title: "Dashboard" },
+        meta: { title: "Dashboard", roles: ["admin", "manager", "viewer"] },
       },
 
       {
         path: "users/:id",
         name: "UserView",
         component: UserView,
-        meta: { title: "User Page" },
+        meta: { title: "User Details", roles: ["admin", "manager", "viewer"] },
+      },
+
+      {
+        path: "users/edit/:id",
+        name: "UserEditView",
+        component: UserEditView,
+        meta: { title: "Edit User", roles: ["admin", "manager"] },
       },
     ],
+  },
+
+  {
+    path: "/unauthorized",
+    name: "UnauthorizedView",
+    component: UnauthorizedView,
+    meta: { title: "Unauthorized" },
   },
 
   {
@@ -60,17 +76,39 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, _, next) => {
+router.beforeEach(async (to, _, next) => {
   document.title = `AdminX - ${to.meta.title}`;
 
   const authStore = useAuthStore();
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next("/");
-  } else if (to.meta.authView && authStore.isAuthenticated) {
-    next("/dashboard");
-  } else {
-    next();
-  }
-});
+  const isAuthenticated = authStore.isAuthenticated;
+  const userRole = authStore.userRole; // Current user's role
 
+  // Ensure roles are loaded before checking
+  if (!authStore.roles.length) {
+    await authStore.fetchRoles();
+  }
+
+  const userRoles = authStore.roles; // Fetched roles from store
+  const allowedRoles = Array.isArray(to.meta.roles) ? to.meta.roles : [];
+
+  // 🚧 Check if user is authenticated
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return next("/");
+  }
+
+  // 🚧 Prevent authenticated users from accessing auth views (e.g., login)
+  if (to.meta.authView && isAuthenticated) {
+    return next("/dashboard");
+  }
+
+  // 🚧 Ensure the user's role is valid and has access to the route
+  if (
+    allowedRoles.length &&
+    (!userRoles.includes(userRole) || !allowedRoles.includes(userRole))
+  ) {
+    return next("/unauthorized");
+  }
+
+  next();
+});
 export { router };

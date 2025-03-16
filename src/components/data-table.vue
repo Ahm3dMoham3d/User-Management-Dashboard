@@ -14,7 +14,6 @@ import { useRoute, useRouter } from "vue-router";
 
 import { FlexRender, getCoreRowModel, useVueTable } from "@tanstack/vue-table";
 import { Input } from "@/components/ui/input";
-
 import { Button } from "@/components/ui/button";
 
 import {
@@ -36,9 +35,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 import { debounce } from "lodash";
 import type { AcceptableValue } from "reka-ui";
-import { ArrowDownNarrowWide, ArrowUpNarrowWide } from "lucide-vue-next";
+import {
+  ArrowDownNarrowWide,
+  ArrowUpNarrowWide,
+  Search,
+  FileSpreadsheet,
+} from "lucide-vue-next";
 
 const props = defineProps<{
   columns: ColumnDef<TData, TValue>[];
@@ -49,6 +60,8 @@ const props = defineProps<{
   filterKey?: string | null;
   filterPlaceholder?: string | null;
   retryFunction?: () => void;
+  exportFunction?: () => void;
+  exportPending: boolean;
 }>();
 
 const refreshPage = () => {
@@ -133,13 +146,57 @@ const handleSearchUpdate = debounce((val: string) => {
 
 <template>
   <div>
-    <div class="flex items-center py-4">
-      <Input
-        class="max-w-sm"
-        :placeholder="filterPlaceholder"
-        v-model="searchModel"
-        @update:model-value="handleSearchUpdate"
-      />
+    <div class="flex items-center py-4 justify-between">
+      <div class="relative min-w-[250px]">
+        <Search
+          class="absolute start-3 top-1/2 transform -translate-y-1/2"
+          size="18"
+        />
+        <Input
+          class="ps-10 w-full"
+          :placeholder="filterPlaceholder"
+          v-model="searchModel"
+          @update:model-value="handleSearchUpdate"
+        />
+      </div>
+
+      <TooltipProvider v-if="exportFunction">
+        <Tooltip>
+          <TooltipTrigger>
+            <Button
+              variant="ghost"
+              :disabled="exportPending"
+              @click="exportFunction"
+            >
+              <FileSpreadsheet v-if="!exportPending" />
+              <svg
+                v-else
+                class="animate-spin h-5 w-5 text-gray-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>{{ exportPending ? "Exporting..." : "Export to CSV" }}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     </div>
 
     <div class="border rounded-md p-4">
