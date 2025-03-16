@@ -32,8 +32,42 @@ export const useUsersStore = defineStore("users", {
     error: null,
   }),
 
+  getters: {
+    totalUsers: (state) => state.users.length,
+    activeUsersCount: (state) =>
+      state.users.filter((user) => user.status === "active").length,
+    inactiveUsersCount: (state) =>
+      state.users.filter((user) => user.status === "inactive").length,
+    roleCounts: (state) => {
+      return {
+        admin: state.users.filter((user) => user.role === "admin").length,
+        manager: state.users.filter((user) => user.role === "manager").length,
+        viewer: state.users.filter((user) => user.role === "viewer").length,
+      };
+    },
+    usersJoinedByTime: (state) => {
+      const now = new Date();
+      return {
+        lastWeek: state.users.filter(
+          (user) =>
+            new Date(user.dateJoined) > new Date(now.setDate(now.getDate() - 7))
+        ).length,
+        lastMonth: state.users.filter(
+          (user) =>
+            new Date(user.dateJoined) >
+            new Date(now.setMonth(now.getMonth() - 1))
+        ).length,
+        older: state.users.filter(
+          (user) =>
+            new Date(user.dateJoined) <=
+            new Date(now.setMonth(now.getMonth() - 1))
+        ).length,
+      };
+    },
+  },
+
   actions: {
-    async getAllUsers(page = 1, limit = 10, search: string, sort: string) {
+    async getAllUsers(page = 1, limit = 10, search?: string, sort?: string) {
       this.loading = true;
       this.error = null;
       try {

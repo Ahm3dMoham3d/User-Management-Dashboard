@@ -6,6 +6,7 @@ const AuthView = () => import("@/views/AuthView.vue");
 
 const DashboardLayout = () => import("@/layouts/DashboardLayout.vue");
 const DashboardView = () => import("@/views/DashboardView.vue");
+const ChartsView = () => import("@/views/ChartsView.vue");
 
 const UserView = () => import("@/views/UserView.vue");
 const UserEditView = () => import("@/views/UserEditView.vue");
@@ -38,6 +39,13 @@ const routes = [
         name: "DashboardView",
         component: DashboardView,
         meta: { title: "Dashboard", roles: ["admin", "manager", "viewer"] },
+      },
+
+      {
+        path: "charts",
+        name: "ChartsView",
+        component: ChartsView,
+        meta: { title: "Charts", roles: ["admin"] },
       },
 
       {
